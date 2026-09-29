@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Truba_Bakulin_AA-25-07.vcxproj" />
+  <Project Path="Truba_Bakulin_AA-25-07.vcxproj" Id="bcc7246d-6f86-4332-8700-4f1d33a00b35" />
 </Solution>
