@@ -383,7 +383,7 @@ int main() {
     int choice = -1;
 
     while (choice != 0) {
-        cout << "\n    MAIN MENU " << endl;
+        cout << "\n   MAIN MENU " << endl;
         cout << "1. Add Pipe" << endl;
         cout << "2. Add CS" << endl;
         cout << "3. View all objects" << endl;
@@ -397,17 +397,17 @@ int main() {
         choice = inputInt();
 
         switch (choice) {
-        case 1:
-            readPipe(myPipe);
-            pipeCreated = true;
-            break;
-
-        case 2:
+        case 1: {
+              readPipe(myPipe);
+              pipeCreated = true;
+              break;
+        }
+        case 2: {
             readCS(myCS);
             csCreated = true;
             break;
-
-        case 3:
+        }
+        case 3: {
             if (pipeCreated) {
                 printPipe(myPipe);
             }
@@ -422,8 +422,8 @@ int main() {
                 cout << "CS has not been created yet." << endl;
             }
             break;
-
-        case 4:
+        }
+        case 4: {
             if (pipeCreated) {
                 editPipeRepair(myPipe);
             }
@@ -440,11 +440,11 @@ int main() {
                 cout << "Error! CS has not been created yet." << endl;
             }
             break;
-
-        case 6:
+        }
+        case 6: {
             saveAll(myPipe, myCS, pipeCreated, csCreated);
             break;
-
+        }
         case 7: {
             bool pipeLoaded;
             bool csLoaded;
@@ -459,14 +459,15 @@ int main() {
                 }
 
                 cout << "Data successfully loaded from data.txt" << endl;
-            }
             break;
+            }
+            
         }
 
-        case 0:
+        case 0: {
             cout << "Exiting program..." << endl;
             break;
-
+        }
         default:
             cout << "Invalid menu option, try again." << endl;
         }
