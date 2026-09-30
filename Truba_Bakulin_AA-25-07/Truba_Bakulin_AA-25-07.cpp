@@ -23,6 +23,14 @@ int inputInt() {
     string extra;
 
     while (true) {
+        cin >> ws;
+
+        if (cin.peek() == '+') {
+            getline(cin, extra);
+            cout << "Error! Please enter a valid integer: ";
+            continue;
+        }
+
         if (cin >> value) {
             getline(cin, extra);
             if (extra.find_first_not_of(" \t\r") == string::npos) {
@@ -43,6 +51,14 @@ double inputDouble() {
     string extra;
 
     while (true) {
+        cin >> ws;
+
+        if (cin.peek() == '+') {
+            getline(cin, extra);
+            cout << "Error! Please enter a valid number: ";
+            continue;
+        }
+
         if (cin >> value) {
             getline(cin, extra);
             if (extra.find_first_not_of(" \t\r") == string::npos) {
@@ -60,6 +76,7 @@ double inputDouble() {
 
 int inputBinary() {
     int value;
+
     while (true) {
         value = inputInt();
         if (value == 0 || value == 1) {
@@ -69,19 +86,18 @@ int inputBinary() {
     }
 }
 
-bool isValidPipe(Pipe p) {
+bool isValidPipe(const Pipe& p) {
     return !p.mark.empty() && p.length > 0 && p.diameter > 0;
 }
 
-bool isValidCS(CS s) {
+bool isValidCS(const CS& s) {
     return !s.name.empty() &&
         s.totalWorkshops >= 0 &&
         s.workingWorkshops >= 0 &&
         s.workingWorkshops <= s.totalWorkshops;
 }
 
-Pipe readPipe() {
-    Pipe p;
+void readPipe(Pipe& p) {
     cout << "Enter km mark (name): ";
     cin >> p.mark;
 
@@ -101,10 +117,9 @@ Pipe readPipe() {
 
     cout << "In repair? (1 - yes, 0 - no): ";
     p.inRepair = inputBinary();
-    return p;
 }
 
-void printPipe(Pipe p) {
+void printPipe(const Pipe& p) {
     cout << "--- Pipe Details ---" << endl;
     cout << "Mark: " << p.mark << endl;
     cout << "Length: " << p.length << " km" << endl;
@@ -112,15 +127,13 @@ void printPipe(Pipe p) {
     cout << "Status: " << (p.inRepair ? "In Repair" : "Operational") << endl;
 }
 
-Pipe editPipeRepair(Pipe p) {
+void editPipeRepair(Pipe& p) {
     cout << "Current status: " << (p.inRepair ? "In Repair" : "Operational") << endl;
     cout << "Set status to 'In Repair'? (1 - yes, 0 - no): ";
     p.inRepair = inputBinary();
-    return p;
 }
 
-CS readCS() {
-    CS s;
+void readCS(CS& s) {
     cout << "Enter CS name: ";
     cin >> s.name;
 
@@ -133,17 +146,16 @@ CS readCS() {
 
     cout << "Enter working workshops: ";
     s.workingWorkshops = inputInt();
-    while (s.workingWorkshops > s.totalWorkshops || s.workingWorkshops < 0) {
+    while (s.workingWorkshops < 0 || s.workingWorkshops > s.totalWorkshops) {
         cout << "Error! Working workshops cannot be more than total or less than 0. Try again: ";
         s.workingWorkshops = inputInt();
     }
 
     cout << "Enter station class: ";
     s.stationClass = inputInt();
-    return s;
 }
 
-void printCS(CS s) {
+void printCS(const CS& s) {
     cout << "--- Station Details ---" << endl;
     cout << "Name: " << s.name << endl;
     cout << "Total workshops: " << s.totalWorkshops << endl;
@@ -151,23 +163,23 @@ void printCS(CS s) {
     cout << "Class: " << s.stationClass << endl;
 }
 
-CS editCSWorkshop(CS s) {
+void editCSWorkshop(CS& s) {
     cout << "1. Start workshop" << endl;
-    cout << "0. Stop workshop" << endl;
+    cout << "2. Stop workshop" << endl;
     int choice = inputInt();
 
     if (choice == 1) {
         if (s.workingWorkshops < s.totalWorkshops) {
-            s.workingWorkshops = s.workingWorkshops + 1;
+            s.workingWorkshops++;
             cout << "Workshop started." << endl;
         }
         else {
             cout << "Error: All workshops are already working!" << endl;
         }
     }
-    else if (choice == 0) {
+    else if (choice == 2) {
         if (s.workingWorkshops > 0) {
-            s.workingWorkshops = s.workingWorkshops - 1;
+            s.workingWorkshops--;
             cout << "Workshop stopped." << endl;
         }
         else {
@@ -177,73 +189,63 @@ CS editCSWorkshop(CS s) {
     else {
         cout << "Invalid choice." << endl;
     }
-    return s;
 }
 
-void saveAll(Pipe p, CS s) {
+void saveAll(const Pipe& p, const CS& s) {
     if (!isValidPipe(p) || !isValidCS(s)) {
-        cout << "Error! Cannot save invalid data. Please enter Pipe and CS data first." << endl;
+        cout << "Error! Cannot save invalid data. Create Pipe and CS first." << endl;
         return;
     }
 
     ofstream out("data.txt");
-    if (out.is_open()) {
-        out << p.mark << " " << p.length << " " << p.diameter << " " << p.inRepair << endl;
-        out << s.name << " " << s.totalWorkshops << " " << s.workingWorkshops << " " << s.stationClass << endl;
+    if (!out.is_open()) {
+        cout << "Error opening file for saving!" << endl;
+        return;
+    }
 
-        if (out.good()) {
-            cout << "Data successfully saved to data.txt" << endl;
-        }
-        else {
-            cout << "Error while writing data to file!" << endl;
-        }
-        out.close();
+    out << p.mark << " " << p.length << " " << p.diameter << " " << p.inRepair << endl;
+    out << s.name << " " << s.totalWorkshops << " " << s.workingWorkshops << " " << s.stationClass << endl;
+
+    if (out) {
+        cout << "Data successfully saved to data.txt" << endl;
     }
     else {
-        cout << "Error opening file for saving!" << endl;
+        cout << "Error while writing data to file!" << endl;
     }
 }
 
-struct DataBundle {
-    Pipe p;
-    CS s;
-    bool success;
-};
-
-DataBundle loadAllFixed() {
-    DataBundle bundle;
-    bundle.p = { "None", 0.0, 0, false };
-    bundle.s = { "None", 0, 0, 0 };
-    bundle.success = false;
-
+bool loadAll(Pipe& p, CS& s) {
     ifstream in("data.txt");
     if (!in.is_open()) {
         cout << "File not found or cannot be opened." << endl;
-        return bundle;
+        return false;
     }
 
+    Pipe loadedPipe;
+    CS loadedCS;
     int repairStatus;
-    if (!(in >> bundle.p.mark >> bundle.p.length >> bundle.p.diameter >> repairStatus
-        >> bundle.s.name >> bundle.s.totalWorkshops >> bundle.s.workingWorkshops >> bundle.s.stationClass)) {
+
+    if (!(in >> loadedPipe.mark >> loadedPipe.length >> loadedPipe.diameter >> repairStatus
+        >> loadedCS.name >> loadedCS.totalWorkshops
+        >> loadedCS.workingWorkshops >> loadedCS.stationClass)) {
         cout << "Error! File contains incomplete or invalid data." << endl;
-        in.close();
-        return bundle;
+        return false;
     }
 
-    if (bundle.p.length <= 0 || bundle.p.diameter <= 0 ||
+    if (loadedPipe.length <= 0 ||
+        loadedPipe.diameter <= 0 ||
         (repairStatus != 0 && repairStatus != 1) ||
-        !isValidCS(bundle.s)) {
+        !isValidCS(loadedCS)) {
         cout << "Error! File contains invalid data." << endl;
-        in.close();
-        return bundle;
+        return false;
     }
 
-    bundle.p.inRepair = repairStatus;
-    bundle.success = true;
-    in.close();
+    loadedPipe.inRepair = repairStatus;
+    p = loadedPipe;
+    s = loadedCS;
 
     cout << "Data successfully loaded from data.txt" << endl;
-    return bundle;
+    return true;
 }
 
 int main() {
@@ -254,6 +256,7 @@ int main() {
     bool csCreated = false;
 
     int choice = -1;
+
     while (choice != 0) {
         cout << "\n--- MAIN MENU ---" << endl;
         cout << "1. Add Pipe" << endl;
@@ -268,19 +271,18 @@ int main() {
 
         choice = inputInt();
 
-        switch (choice)
-        {
-        case 1: {
-            myPipe = readPipe();
+        switch (choice) {
+        case 1:
+            readPipe(myPipe);
             pipeCreated = true;
             break;
-        }
-        case 2: {
-            myCS = readCS();
+
+        case 2:
+            readCS(myCS);
             csCreated = true;
             break;
-        }
-        case 3: {
+
+        case 3:
             if (pipeCreated) {
                 printPipe(myPipe);
             }
@@ -294,28 +296,27 @@ int main() {
             else {
                 cout << "CS has not been created yet." << endl;
             }
-
             break;
-        }
-        case 4: {
+
+        case 4:
             if (pipeCreated) {
-                myPipe = editPipeRepair(myPipe);
+                editPipeRepair(myPipe);
             }
             else {
                 cout << "Error! Pipe has not been created yet." << endl;
             }
             break;
-        }
-        case 5: {
+
+        case 5:
             if (csCreated) {
-                myCS = editCSWorkshop(myCS);
+                editCSWorkshop(myCS);
             }
             else {
                 cout << "Error! CS has not been created yet." << endl;
             }
             break;
-        }
-        case 6: {
+
+        case 6:
             if (pipeCreated && csCreated) {
                 saveAll(myPipe, myCS);
             }
@@ -323,27 +324,20 @@ int main() {
                 cout << "Error! Create Pipe and CS before saving." << endl;
             }
             break;
-        }
-        case 7: {
-            DataBundle loaded = loadAllFixed();
 
-            if (loaded.success) {
-                myPipe = loaded.p;
-                myCS = loaded.s;
+        case 7:
+            if (loadAll(myPipe, myCS)) {
                 pipeCreated = true;
                 csCreated = true;
             }
-
             break;
-        }
-        case 0: {
+
+        case 0:
             cout << "Exiting program..." << endl;
             break;
-        }
-        default: {
+
+        default:
             cout << "Invalid menu option, try again." << endl;
-            break;
-        }
         }
     }
 
