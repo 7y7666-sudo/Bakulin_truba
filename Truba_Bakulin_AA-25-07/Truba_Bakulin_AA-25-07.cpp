@@ -210,7 +210,7 @@ bool loadAll(Pipe& p, CS& s, bool& pipeLoaded, bool& csLoaded) {
     csLoaded = false;
 
     if (!in.is_open()) {
-        cout << "File not found or cannot be opened." << endl;
+        cout << "File not found or empty." << endl;
         return false;
     }
 
@@ -431,8 +431,9 @@ int main() {
                 cout << "Error! Pipe has not been created yet." << endl;
             }
             break;
+        }
 
-        case 5:
+        case 5:{
             if (csCreated) {
                 editCSWorkshop(myCS);
             }
@@ -459,9 +460,9 @@ int main() {
                 }
 
                 cout << "Data successfully loaded from data.txt" << endl;
-            break;
-            }
             
+            }
+            break;
         }
 
         case 0: {
