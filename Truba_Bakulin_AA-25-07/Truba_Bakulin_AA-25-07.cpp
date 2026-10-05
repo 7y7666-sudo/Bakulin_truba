@@ -4,50 +4,8 @@
 
 using namespace std;
 
-struct Pipe {
-    string mark;
-    double length;
-    int diameter;
-    bool inRepair;
-};
-
-struct CS {
-    string name;
-    int totalWorkshops;
-    int workingWorkshops;
-    char stationClass;
-};
-
-int inputInt() {
-    int value;
-    string extra;
-
-    while (true) {
-        cin >> ws;
-
-        if (cin.peek() == '+') {
-            getline(cin, extra);
-            cout << "Error! Please enter a valid integer: ";
-            continue;
-        }
-
-        if (cin >> value) {
-            getline(cin, extra);
-
-            if (extra.find_first_not_of(" \t\r") == string::npos) {
-                return value;
-            }
-        }
-        else {
-            cin.clear();
-            getline(cin, extra);
-        }
-
-        cout << "Error! Please enter a valid integer: ";
-    }
-}
-
-double inputDouble() {
+template <typename T>
+T check() {
     double value;
     string extra;
 
@@ -72,23 +30,21 @@ double inputDouble() {
             getline(cin, extra);
         }
 
-        cout << "Error! Please enter a valid number: ";
     }
 }
+struct Pipe {
+    string mark;
+    double length;
+    int diameter;
+    bool inRepair;
+};
 
-int inputBinary() {
-    int value;
-
-    while (true) {
-        value = inputInt();
-
-        if (value == 0 || value == 1) {
-            return value;
-        }
-
-        cout << "Error! Enter 1 or 0: ";
-    }
-}
+struct CS {
+    string name;
+    int totalWorkshops;
+    int workingWorkshops;
+    char stationClass;
+};
 
 bool isValidPipe(const Pipe& p) {
     return !p.mark.empty() &&
@@ -106,26 +62,26 @@ bool isValidCS(const CS& s) {
 
 void readPipe(Pipe& p) {
     cout << "Enter km mark (name): ";
-    cin >> p.mark;
+    getline(cin, p.mark);
 
     cout << "Enter length (km): ";
-    p.length = inputDouble();
+    p.length = check<int>();
 
     while (p.length <= 0) {
         cout << "Error! Length must be greater than 0. Try again: ";
-        p.length = inputDouble();
+        p.length = check<int>();
     }
 
     cout << "Enter diameter (mm): ";
-    p.diameter = inputInt();
+    p.diameter = check<int>();
 
     while (p.diameter <= 0) {
         cout << "Error! Diameter must be greater than 0. Try again: ";
-        p.diameter = inputInt();
+        p.diameter = check<int>();
     }
 
     cout << "In repair? (1 - yes, 0 - no): ";
-    p.inRepair = inputBinary();
+    p.inRepair = check<bool>();
 }
 
 void printPipe(const Pipe& p) {
@@ -139,28 +95,28 @@ void printPipe(const Pipe& p) {
 void editPipeRepair(Pipe& p) {
     cout << "Current status: " << (p.inRepair ? "In Repair" : "Operational") << endl;
     cout << "Set status to 'In Repair'? (1 - yes, 0 - no): ";
-    p.inRepair = inputBinary();
+    p.inRepair = check<bool>();
 }
 
 void readCS(CS& s) {
     cout << "Enter CS name: ";
-    cin >> s.name;
+    getline(cin,s.name);
 
     cout << "Enter total workshops: ";
-    s.totalWorkshops = inputInt();
+    s.totalWorkshops = check<int>();
 
     while (s.totalWorkshops < 0) {
         cout << "Error! Total workshops cannot be less than 0. Try again: ";
-        s.totalWorkshops = inputInt();
+        s.totalWorkshops = check<int>();
     }
 
     cout << "Enter working workshops: ";
-    s.workingWorkshops = inputInt();
+    s.workingWorkshops = check<int>();
 
     while (s.workingWorkshops < 0 ||
         s.workingWorkshops > s.totalWorkshops) {
         cout << "Error! Working workshops cannot be more than total or less than 0. Try again: ";
-        s.workingWorkshops = inputInt();
+        s.workingWorkshops = check<int>();
     }
 
     cout << "Enter station class: ";
@@ -178,7 +134,7 @@ void printCS(const CS& s) {
 void editCSWorkshop(CS& s) {
     cout << "1. Start workshop" << endl;
     cout << "0. Stop workshop" << endl;
-    int choice = inputInt();
+    int choice = check<int>();
 
     if (choice == 1) {
         if (s.workingWorkshops < s.totalWorkshops) {
@@ -394,13 +350,13 @@ int main() {
         cout << "0. Exit" << endl;
         cout << "Your choice: ";
 
-        choice = inputInt();
+        choice = check<int>();
 
         switch (choice) {
         case 1: {
-              readPipe(myPipe);
-              pipeCreated = true;
-              break;
+            readPipe(myPipe);
+            pipeCreated = true;
+            break;
         }
         case 2: {
             readCS(myCS);
@@ -433,7 +389,7 @@ int main() {
             break;
         }
 
-        case 5:{
+        case 5: {
             if (csCreated) {
                 editCSWorkshop(myCS);
             }
@@ -460,7 +416,7 @@ int main() {
                 }
 
                 cout << "Data successfully loaded from data.txt" << endl;
-            
+
             }
             break;
         }
