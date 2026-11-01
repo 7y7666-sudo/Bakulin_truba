@@ -1,25 +1,28 @@
 ﻿#include "Pipeline.h"
+#include "utils.h"
 #include <exception>
+#include <fstream>
 #include <iostream>
 
 int main() {
-    Logger logger("user_actions.log");
-    if (!logger.isOpen()) {
-        std::cerr << "Cannot open user_actions.log.\n";
-        return 1;
-    }
+    std::ofstream logfile("user_actions.log", std::ios::app);
+    redirect_output_wrapper cerr_out(std::cerr);
+
+    if (logfile)
+        cerr_out.redirect(logfile);
+
     try {
-        Pipeline app(logger);
+        Pipeline app;
         app.run();
     }
-    catch (const util::EndOfInput&) {
+    catch (const std::ios_base::failure&) {
         std::cout << "\nInput ended. Exiting safely.\n";
-        logger.log("Application exited: end of input");
+        std::cerr << "Application exited: end of input\n";
     }
     catch (const std::exception& error) {
         std::cerr << "Unexpected error: " << error.what() << '\n';
-        logger.log(std::string("Unexpected exception: ") + error.what());
         return 1;
     }
+
     return 0;
 }

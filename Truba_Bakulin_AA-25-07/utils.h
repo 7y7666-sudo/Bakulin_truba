@@ -1,86 +1,99 @@
 #pragma once
-#include <cmath>
-#include <fstream>
 #include <iostream>
 #include <limits>
-#include <optional>
-#include <sstream>
 #include <string>
-#include <type_traits>
 
-class Logger {
+class redirect_output_wrapper {
+    std::ostream& stream_;
+    std::streambuf* old_buffer_;
+
 public:
-    explicit Logger(const std::string& path) : path_(path), file_(path, std::ios::app) {}
-    bool isOpen() const { return file_.is_open() && static_cast<bool>(file_); }
-    const std::string& path() const { return path_; }
-    bool log(const std::string& message) {
-        if (!isOpen()) return false;
-        file_ << message << '\n';
-        file_.flush();
-        return static_cast<bool>(file_);
+    redirect_output_wrapper(std::ostream& stream)
+        : stream_(stream), old_buffer_(stream.rdbuf()) {
     }
-private:
-    std::string path_;
-    std::ofstream file_;
+
+    ~redirect_output_wrapper() {
+        stream_.rdbuf(old_buffer_);
+    }
+
+    void redirect(std::ostream& destination) {
+        stream_.rdbuf(destination.rdbuf());
+    }
 };
 
 namespace util {
-    struct EndOfInput {};
 
-    inline std::string trim(const std::string& s) {
-        const auto first = s.find_first_not_of(" \t\r\n\f\v");
+    inline std::string trim(const std::string& value) {
+        const std::string spaces = " \t\r\n\f\v";
+        const auto first = value.find_first_not_of(spaces);
         if (first == std::string::npos) return {};
-        return s.substr(first, s.find_last_not_of(" \t\r\n\f\v") - first + 1);
+        const auto last = value.find_last_not_of(spaces);
+        return value.substr(first, last - first + 1);
     }
 
-    inline std::string line(const std::string& prompt, Logger& log) {
+    inline std::string line(const std::string& prompt) {
         std::cout << prompt;
         std::string value;
-        if (!std::getline(std::cin, value)) throw EndOfInput{};
-        log.log("Input [" + trim(prompt) + "] = [" + value + "]");
+        if (!std::getline(std::cin, value)) throw std::ios_base::failure("Input ended");
+        std::cerr << "Input [" << trim(prompt) << "] = [" << value << "]\n";
         return value;
     }
 
-    template<class T> std::optional<T> parse(const std::string& text) {
-        std::istringstream in(text);
+    template<class T>
+    T GetCorrectNumber(T min, T max) {
         T value{};
-        if (!(in >> value)) return std::nullopt;
-        in >> std::ws;
-        if (!in.eof()) return std::nullopt;
-        if constexpr (std::is_floating_point_v<T>)
-            if (!std::isfinite(value)) return std::nullopt;
-        return value;
-    }
+        std::string extra;
 
-    template<class T> T number(const std::string& prompt, T low, T high, Logger& log) {
         while (true) {
-            const auto value = parse<T>(trim(line(prompt, log)));
-            if (value && *value >= low && *value <= high) return *value;
-            std::cout << "Invalid number. Allowed range: " << low << ".." << high << ".\n";
-            log.log("Input rejected: number out of range or invalid");
+            if (std::cin >> value) {
+                std::getline(std::cin, extra);
+                if (extra.find_first_not_of(" \t\r") == std::string::npos &&
+                    value >= min && value <= max) {
+                    std::cerr << value << '\n';
+                    return value;
+                }
+            }
+            else {
+                if (std::cin.eof()) throw std::ios_base::failure("Input ended");
+                std::cin.clear();
+                std::getline(std::cin, extra);
+            }
+
+            std::cout << "Type a number between " << min << " and " << max << ": ";
+            std::cerr << "Input rejected: invalid number or value out of range\n";
         }
     }
 
-    inline double positiveDouble(const std::string& prompt, Logger& log) {
+    template<class T>
+    T number(const std::string& prompt, T min, T max) {
+        std::cout << prompt;
+        return GetCorrectNumber<T>(min, max);
+    }
+
+    inline double positiveDouble(const std::string& prompt) {
         while (true) {
-            const auto value = parse<double>(trim(line(prompt, log)));
-            if (value && *value > 0.0) return *value;
-            std::cout << "Value must be a finite number greater than zero.\n";
-            log.log("Input rejected: expected a positive finite number");
+            const double value = number<double>(prompt, 0.0, std::numeric_limits<double>::max());
+            if (value > 0.0) return value;
+            std::cout << "Value must be greater than zero.\n";
+            std::cerr << "Input rejected: expected a positive number\n";
         }
     }
-    inline std::string text(const std::string& prompt, Logger& log) {
+
+    inline std::string text(const std::string& prompt) {
         while (true) {
-            auto value = trim(line(prompt, log));
+            const auto value = trim(line(prompt));
             if (!value.empty()) return value;
             std::cout << "Text must not be empty.\n";
-            log.log("Input rejected: empty text");
+            std::cerr << "Input rejected: empty text\n";
         }
     }
-    inline int id(const std::string& prompt, Logger& log) {
-        return number<int>(prompt, 1, std::numeric_limits<int>::max(), log);
+
+    inline int id(const std::string& prompt) {
+        return number<int>(prompt, 1, std::numeric_limits<int>::max());
     }
-    inline bool yesNo(const std::string& prompt, Logger& log) {
-        return number<int>(prompt, 0, 1, log) == 1;
+
+    inline bool yesNo(const std::string& prompt) {
+        return number<int>(prompt, 0, 1) == 1;
     }
+
 }

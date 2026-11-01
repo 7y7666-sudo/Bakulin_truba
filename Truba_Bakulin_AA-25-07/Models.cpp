@@ -35,7 +35,7 @@ CompressorStation::CompressorStation(std::string name, int total, int working, c
 }
 
 double CompressorStation::unusedPercent() const {
-    return total_ == 0 ? 0.0 : 100.0 * unusedWorkshops() / total_;
+    return 100.0 * unusedWorkshops() / total_;
 }
 
 bool CompressorStation::startWorkshop() {

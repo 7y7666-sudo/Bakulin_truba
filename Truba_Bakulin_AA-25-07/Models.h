@@ -16,9 +16,9 @@ public:
 
 private:
     std::string mark_;
-    double length_ = 0;
-    int diameter_ = 0;
-    bool inRepair_ = false;
+    double length_;
+    int diameter_;
+    bool inRepair_;
 };
 
 class CompressorStation {
@@ -38,7 +38,7 @@ public:
 
 private:
     std::string name_;
-    int total_ = 0;
-    int working_ = 0;
-    char class_ = 'A';
+    int total_;
+    int working_;
+    char class_;
 };
