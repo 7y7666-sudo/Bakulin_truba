@@ -18,21 +18,21 @@
     <ClCompile Include="Truba_Bakulin_AA-25-07.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline.cpp">
+    <ClCompile Include="Station.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Models.cpp">
+    <ClCompile Include="Pipe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Pipeline.h">
+    <ClInclude Include="Pipe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
+    <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models.h">
+    <ClInclude Include="Station.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
