@@ -1,19 +1,18 @@
 #include "Station.h"
 #include <iostream>
+#include <fstream>
 #include "Utils.h"
 
 using namespace std;
 
-int Station::NextId = 1;
-
-Station::Station()
-{
-	id = NextId++;
-}
-
 int Station::getID() const
 {
 	return id;
+}
+
+void Station::setID(int newId)
+{
+	id = newId;
 }
 
 std::string Station::getName() const
@@ -25,6 +24,12 @@ double Station::getUnusedWorkshops() const
 {
 	return 100 * (totalShops - totalWorkingShops) / totalShops;
 }
+
+void Station::editTotalWorkingShops(double workshopPercentage)
+{
+	totalWorkingShops = static_cast<int>(totalShops * workshopPercentage / 100);
+}
+
 
 std::istream& operator>>(istream& in, Station& cs)
 {
@@ -42,13 +47,7 @@ std::ifstream& operator>>(ifstream& inF, Station& cs) {
 	inF >> cs.totalShops;
 	inF >> cs.totalWorkingShops;
 	inF >> cs.classStation;
-	Station::NextId = cs.id + 1;
 	return inF;
-}
-
-void Station::editTotalWorkingShops(double workshopPercentage)
-{
-	totalWorkingShops = floor(totalShops * workshopPercentage / 100);
 }
 
 std::ostream& operator<<(ostream& out, const Station& cs)

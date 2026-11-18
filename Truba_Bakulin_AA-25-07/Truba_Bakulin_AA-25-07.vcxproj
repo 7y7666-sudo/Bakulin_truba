@@ -139,11 +139,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GTS.cpp" />
     <ClCompile Include="Pipe.cpp" />
     <ClCompile Include="Station.cpp" />
     <ClCompile Include="Truba_Bakulin_AA-25-07.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GTS.h" />
     <ClInclude Include="Station.h" />
     <ClInclude Include="Pipe.h" />
     <ClInclude Include="Utils.h" />

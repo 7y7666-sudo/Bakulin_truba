@@ -1,19 +1,18 @@
 #include "Pipe.h"
 #include <iostream>
+#include <fstream>
 #include "Utils.h"
 
 using namespace std;
 
-int Pipe::NextId = 1;
-
-Pipe::Pipe()
-{
-	id = NextId++;
-}
-
 int Pipe::getID() const
 {
 	return id;
+}
+
+void Pipe::setID(int newId)
+{
+	id = newId;
 }
 
 std::string Pipe::getName() const
@@ -21,9 +20,27 @@ std::string Pipe::getName() const
 	return name;
 }
 
+int Pipe::getDiameter() const
+{
+	return diameter;
+}
+
+void Pipe::inputForConnection(int d)
+{
+	readValidName(name, "Enter the name of the pipe: ");
+	readValidNumber(length, "Enter the length of the pipe (in kilometers): ", 1.0);
+	diameter = d;
+	underRepair = false;
+}
+
 bool Pipe::getUnderRepair() const
 {
 	return underRepair;
+}
+
+void Pipe::editUnderRepair()
+{
+	underRepair = !(underRepair);
 }
 
 std::istream& operator>>(istream& in, Pipe& p)
@@ -31,7 +48,7 @@ std::istream& operator>>(istream& in, Pipe& p)
 	readValidName(p.name, "Enter the name of the pipe: ");
 	readValidNumber(p.length, "Enter the length of the pipe (in kilometers): ", 1.0);
 	readValidNumber(p.diameter, "Enter the pipe diameter (in millimeters): ", 1);
-	readValidNumber(p.underRepair, "Enter the pipe status (1 — under repair, 0 — in working order): ", false, true);
+	readValidNumber(p.underRepair, "Enter the pipe status (1 - under repair, 0 - in working order): ", false, true);
 	return in;
 }
 
@@ -42,14 +59,9 @@ std::ifstream& operator>>(ifstream& inF, Pipe& p) {
 	inF >> p.length;
 	inF >> p.diameter;
 	inF >> p.underRepair;
-	Pipe::NextId = p.id + 1;
 	return inF;
 }
 
-void Pipe::editUnderRepair()
-{
-	underRepair = !(underRepair);
-}
 
 std::ostream& operator << (ostream& out, const Pipe& p) {
 	out << "Pipe ID: " << p.id << endl;

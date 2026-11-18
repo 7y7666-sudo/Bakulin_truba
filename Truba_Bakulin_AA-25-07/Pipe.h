@@ -1,20 +1,20 @@
 #pragma once
 #include <string>
-#include <iostream>
 
 class Pipe
 {
 private:
-	static int NextId;
 	int id = {};
 	std::string name = {};
 	double length = {}; // km
 	int diameter = {}; // mm
-	bool underRepair = {};
+	bool underRepair = {}; // true - труба на ремонте, false - труба в рабочем состоянии
 public:
-	Pipe();
 	int getID() const;
+	void setID(int newId);
 	std::string getName() const;
+	int getDiameter() const;
+	void inputForConnection(int d);
 	bool getUnderRepair() const;
 	void editUnderRepair();
 	friend std::istream& operator >> (std::istream& in, Pipe& p);
